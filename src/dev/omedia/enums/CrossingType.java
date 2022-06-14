@@ -1,4 +1,4 @@
-package dev.omedia;
+package dev.omedia.enums;
 
 public enum CrossingType {
     AIR,

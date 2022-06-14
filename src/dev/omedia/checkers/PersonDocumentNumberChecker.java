@@ -2,7 +2,7 @@ package dev.omedia.checkers;
 
 import dev.omedia.exceptions.PersonDocumentNumberFormatException;
 
-public class PersonDocumentNumberFormatChecker {
+public class PersonDocumentNumberChecker {
     private static final int ID_LENGTH = 11;
     private static final int PASSPORT_NUMBER_LENGTH = 9;
     private static final String ID_PATTERN="[0-9]+";
@@ -12,15 +12,15 @@ public class PersonDocumentNumberFormatChecker {
         switch (length) {
             case ID_LENGTH:
                 if (!documentNumber.matches(ID_PATTERN)) {
-                    throw new PersonDocumentNumberFormatException();
+                    throw new PersonDocumentNumberFormatException("incorrect document number format");
                 }
                 break;
             case PASSPORT_NUMBER_LENGTH:
                 if (!matchesPassportFormat(documentNumber)) {
-                    throw new PersonDocumentNumberFormatException();
+                    throw new PersonDocumentNumberFormatException("incorrect document number format");
                 }
             default:
-                throw new PersonDocumentNumberFormatException();
+                throw new PersonDocumentNumberFormatException("incorrect document number format");
         }
 
     }
