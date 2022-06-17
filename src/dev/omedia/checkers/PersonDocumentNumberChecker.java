@@ -12,15 +12,15 @@ public class PersonDocumentNumberChecker {
         switch (length) {
             case ID_LENGTH:
                 if (!documentNumber.matches(ID_PATTERN)) {
-                    throw new PersonDocumentNumberFormatException("incorrect document number format");
+                    throw new PersonDocumentNumberFormatException("incorrect document number format\n");
                 }
                 break;
             case PASSPORT_NUMBER_LENGTH:
                 if (!matchesPassportFormat(documentNumber)) {
-                    throw new PersonDocumentNumberFormatException("incorrect document number format");
+                    throw new PersonDocumentNumberFormatException("incorrect document number format\n");
                 }
             default:
-                throw new PersonDocumentNumberFormatException("incorrect document number format");
+                throw new PersonDocumentNumberFormatException("incorrect document number format\n");
         }
 
     }

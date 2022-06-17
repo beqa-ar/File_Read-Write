@@ -7,7 +7,7 @@ public class CrossingTypeChecker {
 
     public static void checkCrossingType(String type) throws CrossingTypeFormatException {
         if (!type.matches(TYPE_FORMAT)) {
-            throw new CrossingTypeFormatException("incorrect crossing type format");
+            throw new CrossingTypeFormatException("incorrect crossing type format\n");
         }
     }
 }

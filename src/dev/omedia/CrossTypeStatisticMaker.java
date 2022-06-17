@@ -20,7 +20,7 @@ public class CrossTypeStatisticMaker {
     }
 
 
-    public static void writeStatisticInFile(String path) {
+    public  void writeStatisticInFile(String path) {
         try (OutputStream outputStream = Files.newOutputStream(Paths.get(path), StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
             outputStream.write("range,AIR,LAND".getBytes());
             String st = "\n0-25," + getAt(0, 0) + "," + getAt(1, 0) +

@@ -8,7 +8,7 @@ public class CountryCodeChecker {
 
     public static void checkCountryFormat(String countryCode) throws CountryCodeFormatException {
         if (!countryCode.matches(COUNTRY_CODE_FORMAT)) {
-            throw new CountryCodeFormatException("incorrect country code format");
+            throw new CountryCodeFormatException("incorrect country code format\n");
         }
     }
 
@@ -20,12 +20,12 @@ public class CountryCodeChecker {
             case "RUS":
                 break;
             default :
-                throw new IllegalDestinationException("can not go to "+countryCode+"from geo with land");
+                throw new IllegalDestinationException("can not go to "+countryCode+"from geo with land\n");
         }
     }
     public static void checkIfArriveInGeorgia(String countryCode) throws IllegalDestinationException {
         if(!countryCode.equals("GEO")){
-            throw new IllegalDestinationException("you arrive in geo! not: "+countryCode);
+            throw new IllegalDestinationException("you arrive in geo! not: "+countryCode+"\n");
         }
     }
 }

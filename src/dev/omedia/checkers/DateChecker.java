@@ -41,14 +41,14 @@ public class DateChecker {
         String[] crossingDateParts = crossingDate.split("[-:\\s]");
         String[] birthDateParts = birthDate.split("-");
         if (Integer.parseInt(crossingDateParts[0]) < Integer.parseInt(birthDateParts[0])) {
-            throw new DateFormatException("not born yet ?????");
+            throw new DateFormatException("not born yet ?????\n");
         }
         if (Integer.parseInt(crossingDateParts[0]) == Integer.parseInt(birthDateParts[0])) {
             if (Integer.parseInt(crossingDateParts[1]) < Integer.parseInt(birthDateParts[1])) {
-                throw new DateFormatException("not born yet ?????");
+                throw new DateFormatException("not born yet ?????\n");
             } else if (Integer.parseInt(crossingDateParts[1]) == Integer.parseInt(birthDateParts[1])) {
                 if (Integer.parseInt(crossingDateParts[2]) < Integer.parseInt(birthDateParts[2])) {
-                    throw new DateFormatException("not born yet ?????");
+                    throw new DateFormatException("not born yet ?????\n");
                 }
             }
         }
