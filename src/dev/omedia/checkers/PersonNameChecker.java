@@ -7,7 +7,7 @@ private final static String NAME_FORMAT="[a-zA-Z]+[\\s][a-zA-Z]+|[ა-ჰ]+[\\s]
 
     public static void checkPersonNameFormat(String name) throws PersonNameFormatException {
         if(!name.matches(NAME_FORMAT)){
-            throw new PersonNameFormatException("incorrect person name format\n");
+            throw new PersonNameFormatException("incorrect person name format: "+name+"\n");
         }
     }
 }
