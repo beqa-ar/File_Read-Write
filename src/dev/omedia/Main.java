@@ -8,19 +8,15 @@ import dev.omedia.exceptions.IllegalDestinationException;
 import dev.omedia.exceptions.NoSuchPersonException;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class Main {
 
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         Map<String, PersonStats> border = new HashMap<>();
         try {
             CrossTypeStatisticMaker ctsm = new CrossTypeStatisticMaker();
@@ -31,16 +27,10 @@ public class Main {
                             l -> {
                                 try {
                                     String[] line = l.split(",");
-                                    checkFormats(line);
-                                    checkLogic(line);
+                                    Checker.checkBorderInfoFormats(line);
+                                    Checker.checkBorderInfoLogic(line);
                                     if (isIllegalEntry(border, line[2], getDestinationType(line[5]), line[4])) {
-                                        try (OutputStream outputStream = Files.newOutputStream(Paths.get("Culprit.csv"), StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
-                                            String info = "From: " + border.get(line[2]).getCrossingDate() + " to: " + line[4] + "," + line[1] +
-                                                    "," + line[5] + "," + line[2];
-                                            outputStream.write(info.getBytes());
-                                        } catch (IOException e) {
-                                            throw new RuntimeException(e);
-                                        }
+                                        ErrorFileWriter.IllegalEntryWrite(border, line);
                                     }
                                     int age = border.get(line[2]).getAge();
                                     CrossingType crossingType = getCrossingType(line[1]);
@@ -48,12 +38,7 @@ public class Main {
                                     mvsm.update(age, line[6], crossingType);
 
                                 } catch (FormatException | NoSuchPersonException | IllegalDestinationException e) {
-                                    try (OutputStream outputStream = Files.newOutputStream(Paths.get("error.log"), StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
-                                        String info = file + " " + UUID.randomUUID() + e.getMessage();
-                                        outputStream.write(info.getBytes());
-                                    } catch (IOException ee) {
-                                        throw new RuntimeException(ee);
-                                    }
+                                    ErrorFileWriter.FormatErrorsWrite(file.toString(), e);
                                 }
 
                             });
@@ -64,28 +49,9 @@ public class Main {
         }
     }
 
-    /*checks border cross csv file line values format*/
-    private static void checkFormats(String[] line) throws FormatException {
-        Checker.checkBorderCrossFileLineFormat(line);
-        Checker.checkCrossingType(line[1]);
-        Checker.CheckPersonDocumentNumberFormat(line[2]);
-        Checker.checkBorderCrossingDateFormat(line[4]);
-        Checker.checkDestinationType(line[5]);
-        Checker.checkCountryFormat(line[6]);
-    }
-
-    private static void checkLogic(String[] line) throws NoSuchPersonException, IllegalDestinationException {
-        Checker.checkIfPersonExists(line[2], line[4]);
-        if (line[3].equals("OUT") && line[1].equals("LAND")) {
-            Checker.checkIfGeorgiaNeighbour(line[6]);
-        }
-        if (line[3].equals("IN")) {
-            Checker.checkIfArriveInGeorgia(line[6]);
-        }
-    }
 
     private static CrossingType getCrossingType(String type) {
-        if (type.equals("AIR")) {
+        if (type.equals(CrossingType.AIR.toString())) {
             return CrossingType.AIR;
         } else {
             return CrossingType.LAND;
@@ -93,7 +59,7 @@ public class Main {
     }
 
     private static DestinationType getDestinationType(String type) {
-        if (type.equals("IN")) {
+        if (type.equals(DestinationType.IN.toString())) {
             return DestinationType.IN;
         } else {
             return DestinationType.OUT;

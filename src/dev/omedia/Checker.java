@@ -1,16 +1,15 @@
 package dev.omedia;
 
 
+import dev.omedia.enums.CrossingType;
+import dev.omedia.enums.DestinationType;
 import dev.omedia.exceptions.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
-import java.util.UUID;
 
 public class Checker {
     private final static String BORDER_CROSSING_DATE_FORMAT = "\\d{4}-\\d{2}-\\d{2}\s\\d{2}:\\d{2}";
@@ -56,14 +55,9 @@ public class Checker {
                     .map(l -> {
                         String[] line = l.split(",");
                         try {
-                            checkFormats(line, crossingDate);
+                            checkPersonInfoFormats(line, crossingDate);
                         } catch (FormatException e) {
-                            try (OutputStream outputStream = Files.newOutputStream(Paths.get("error.log"), StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
-                                String info = file + " " + UUID.randomUUID() + " " + e.getMessage();
-                                outputStream.write(info.getBytes());
-                            } catch (IOException ee) {
-                                throw new RuntimeException(ee);
-                            }
+                            ErrorFileWriter.FormatErrorsWrite(file.toString(), e);
                         }
                         return line[0];
                     }).anyMatch(p -> p.equals(documentNumber));
@@ -192,11 +186,31 @@ public class Checker {
         return numbers.matches("\\d+");
     }
 
-    private static void checkFormats(String[] line, String crossingDate) throws FormatException {
+    private static void checkPersonInfoFormats(String[] line, String crossingDate) throws FormatException {
         checkPersonFileLineFormat(line);
         CheckPersonDocumentNumberFormat(line[0]);
         checkPersonNameFormat(line[1]);
         checkBirthDateFormat(line[2]);
         checkPersonAgeWhileBorderCrossing(line[2], crossingDate);
+    }
+
+    /*checks border cross csv file line values format*/
+    public static void checkBorderInfoFormats(String[] line) throws FormatException {
+        Checker.checkBorderCrossFileLineFormat(line);
+        Checker.checkCrossingType(line[1]);
+        Checker.CheckPersonDocumentNumberFormat(line[2]);
+        Checker.checkBorderCrossingDateFormat(line[4]);
+        Checker.checkDestinationType(line[5]);
+        Checker.checkCountryFormat(line[6]);
+    }
+
+    public static void checkBorderInfoLogic(String[] line) throws NoSuchPersonException, IllegalDestinationException {
+        Checker.checkIfPersonExists(line[2], line[4]);
+        if (line[3].equals(CrossingType.AIR.toString()) && line[1].equals(CrossingType.LAND.toString())) {
+            Checker.checkIfGeorgiaNeighbour(line[6]);
+        }
+        if (line[3].equals(DestinationType.IN.toString())) {
+            Checker.checkIfArriveInGeorgia(line[6]);
+        }
     }
 }
