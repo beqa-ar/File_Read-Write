@@ -1,6 +1,6 @@
 package dev.omedia;
 
-import dev.omedia.checkers.*;
+
 import dev.omedia.enums.CrossingType;
 import dev.omedia.enums.DestinationType;
 import dev.omedia.exceptions.FormatException;
@@ -20,45 +20,45 @@ import java.util.UUID;
 public class Main {
 
 
-    public static void main(String[] args) throws Exception {
-        Map<String, PersonStats> border=new HashMap<>();
+    public static void main(String[] args)  {
+        Map<String, PersonStats> border = new HashMap<>();
         try {
-            CrossTypeStatisticMaker ctsm=new CrossTypeStatisticMaker();
-            MostVisitedStatisticMaker mvsm=new MostVisitedStatisticMaker();
-            String birthDate="";
+            CrossTypeStatisticMaker ctsm = new CrossTypeStatisticMaker();
+            MostVisitedStatisticMaker mvsm = new MostVisitedStatisticMaker();
             File file = new File("bordercross.csv");
             Files.readAllLines(Paths.get(file.toURI()))
                     .forEach(
-                            l -> { try {
-                            String[] line = l.split(",");
-                            checkFormats(line);
-                            checkLogic(line);
-                            if(isIllegalEntry(border,line[2], getDestinationType(line[5]),line[4])){
-                                try (OutputStream outputStream = Files.newOutputStream(Paths.get("Culprit.csv"), StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
-                                    String info= "From: "+border.get(line[2]).getCrossingDate()+" to: "+line[4]+","+line[1]+
-                                            ","+line[5]+","+line[2];
-                                    outputStream.write(info.getBytes());
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
+                            l -> {
+                                try {
+                                    String[] line = l.split(",");
+                                    checkFormats(line);
+                                    checkLogic(line);
+                                    if (isIllegalEntry(border, line[2], getDestinationType(line[5]), line[4])) {
+                                        try (OutputStream outputStream = Files.newOutputStream(Paths.get("Culprit.csv"), StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
+                                            String info = "From: " + border.get(line[2]).getCrossingDate() + " to: " + line[4] + "," + line[1] +
+                                                    "," + line[5] + "," + line[2];
+                                            outputStream.write(info.getBytes());
+                                        } catch (IOException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }
+                                    int age = border.get(line[2]).getAge();
+                                    CrossingType crossingType = getCrossingType(line[1]);
+                                    ctsm.update(crossingType, age);
+                                    mvsm.update(age, line[6], crossingType);
+
+                                } catch (FormatException | NoSuchPersonException | IllegalDestinationException e) {
+                                    try (OutputStream outputStream = Files.newOutputStream(Paths.get("error.log"), StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
+                                        String info = file + " " + UUID.randomUUID() + e.getMessage();
+                                        outputStream.write(info.getBytes());
+                                    } catch (IOException ee) {
+                                        throw new RuntimeException(ee);
+                                    }
                                 }
-                            }
-                            int age =border.get(line[2]).getAge();
-                            CrossingType crossingType= getCrossingType(line[1]);
-                            ctsm.update(crossingType, age);
-                            mvsm.update(age,line[6],crossingType);
 
-                        } catch (FormatException | NoSuchPersonException | IllegalDestinationException e) {
-                            try (OutputStream outputStream = Files.newOutputStream(Paths.get("error.log"), StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
-                                String info= file.toString()+" "+UUID.randomUUID() + e.getMessage();
-                                outputStream.write(info.getBytes());
-                            } catch (IOException ee) {
-                                throw new RuntimeException(ee);
-                            }
-                        }
-
-                    });
-                     ctsm.writeStatisticInFile("StatiscicsCrossType.csv");
-                     mvsm.writeStatisticInFile("StatiscicsMostVisited.csv");
+                            });
+            ctsm.writeStatisticInFile("StatiscicsCrossType.csv");
+            mvsm.writeStatisticInFile("StatiscicsMostVisited.csv");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -66,23 +66,24 @@ public class Main {
 
     /*checks border cross csv file line values format*/
     private static void checkFormats(String[] line) throws FormatException {
-        LineChecker.checkBorderCrossFileLineFormat(line);
-        CrossingTypeChecker.checkCrossingType(line[1]);
-        PersonDocumentNumberChecker.CheckPersonDocumentNumberFormat(line[2]);
-        DateChecker.checkBorderCrossingDateFormat(line[4]);
-        DestinationTypeChecker.checkDestinationType(line[5]);
-        CountryCodeChecker.checkCountryFormat(line[6]);
+        Checker.checkBorderCrossFileLineFormat(line);
+        Checker.checkCrossingType(line[1]);
+        Checker.CheckPersonDocumentNumberFormat(line[2]);
+        Checker.checkBorderCrossingDateFormat(line[4]);
+        Checker.checkDestinationType(line[5]);
+        Checker.checkCountryFormat(line[6]);
     }
 
     private static void checkLogic(String[] line) throws NoSuchPersonException, IllegalDestinationException {
-        PersonExistenceChecker.checkIfPersonExists(line[2], line[4]);
+        Checker.checkIfPersonExists(line[2], line[4]);
         if (line[3].equals("OUT") && line[1].equals("LAND")) {
-            CountryCodeChecker.checkIfGeorgiaNeighbour(line[6]);
+            Checker.checkIfGeorgiaNeighbour(line[6]);
         }
-        if(line[3].equals("IN")){
-            CountryCodeChecker.checkIfArriveInGeorgia(line[6]);
+        if (line[3].equals("IN")) {
+            Checker.checkIfArriveInGeorgia(line[6]);
         }
     }
+
     private static CrossingType getCrossingType(String type) {
         if (type.equals("AIR")) {
             return CrossingType.AIR;
@@ -90,7 +91,8 @@ public class Main {
             return CrossingType.LAND;
         }
     }
-    private static DestinationType getDestinationType(String type){
+
+    private static DestinationType getDestinationType(String type) {
         if (type.equals("IN")) {
             return DestinationType.IN;
         } else {
@@ -98,16 +100,14 @@ public class Main {
         }
     }
 
-    private static boolean isIllegalEntry(Map<String,PersonStats> border, String documentNumber, DestinationType destinationType, String crossingDate) {
-        if(border.containsKey(documentNumber)){
-            if(border.get(documentNumber).getDestinationType().equals(destinationType)){
-              return true;
-            }
-        }else{
-            PersonStats ps =new PersonStats(documentNumber);
+    private static boolean isIllegalEntry(Map<String, PersonStats> border, String documentNumber, DestinationType destinationType, String crossingDate) {
+        if (border.containsKey(documentNumber)) {
+            return border.get(documentNumber).getDestinationType().equals(destinationType);
+        } else {
+            PersonStats ps = new PersonStats(documentNumber);
             ps.setDestinationType(destinationType);
             ps.setCrossingDate(crossingDate);
-            border.put(documentNumber,ps);
+            border.put(documentNumber, ps);
         }
         return false;
     }

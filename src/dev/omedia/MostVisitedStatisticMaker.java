@@ -10,11 +10,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class MostVisitedStatisticMaker {
-    private Map<String, CountryStats> to25;
-    private Map<String, CountryStats> to40;
-    private Map<String, CountryStats> to60;
-    private Map<String, CountryStats> to80;
-    private Map<String, CountryStats> above80;
+    private final Map<String, CountryStats> to25;
+    private final Map<String, CountryStats> to40;
+    private final Map<String, CountryStats> to60;
+    private final Map<String, CountryStats> to80;
+    private final Map<String, CountryStats> above80;
 
     public MostVisitedStatisticMaker() {
         to25 = new HashMap<>();
@@ -54,22 +54,11 @@ public class MostVisitedStatisticMaker {
     }
 
     private String getMostVisitedCountryByAir(Map<String, CountryStats> map) {
-        List<CountryStats> countries = new ArrayList<>(map.values().stream().toList());
-        if (countries.size() > 0) {
-            countries.sort(Comparator.comparingInt(CountryStats::getAir));
-            return countries.get(0).getCountryCode();
-        } else {
-       return "null";
-        }
+        return getCountriesList(map, Comparator.comparingInt(CountryStats::getAir));
     }
+
     private String getMostVisitedCountryByLand(Map<String, CountryStats> map) {
-        List<CountryStats> countries = new ArrayList<>(map.values().stream().toList());
-        if (countries.size() > 0) {
-        countries.sort(Comparator.comparingInt(CountryStats::getLand));
-        return countries.get(0).getCountryCode();
-    } else {
-        return "null";
-    }
+        return getCountriesList(map, Comparator.comparingInt(CountryStats::getLand));
     }
 
     private void updateMap(Map<String, CountryStats> map, String countryCode, CrossingType crossingType) {
@@ -90,4 +79,15 @@ public class MostVisitedStatisticMaker {
             }
         }
     }
+
+    private String getCountriesList(Map<String, CountryStats> map, Comparator<CountryStats> countryStatsComparator) {
+        List<CountryStats> countries = new ArrayList<>(map.values().stream().toList());
+        if (countries.size() > 0) {
+            countries.sort(countryStatsComparator);
+            return countries.get(0).getCountryCode();
+        } else {
+            return "null";
+        }
+    }
+
 }
