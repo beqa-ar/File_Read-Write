@@ -15,7 +15,7 @@ public class ErrorFileWriter {
     //file name where error occur
     public static void FormatErrorsWrite(String fileName, Exception e){
         try (OutputStream outputStream = Files.newOutputStream(Paths.get(ERROR_FILE_PATH), StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
-            String info = fileName + " " + UUID.randomUUID() + " " + e.getMessage();
+            String info = fileName + " " + UUID.randomUUID() + " " + e.getMessage()+"\n";
             outputStream.write(info.getBytes());
         } catch (IOException ee) {
             throw new RuntimeException(ee);
@@ -26,7 +26,7 @@ public class ErrorFileWriter {
                 StandardOpenOption.APPEND, StandardOpenOption.CREATE)) {
             String info = "From: " + borderHistory.get(entryInfo[2]).getCrossingDate() +
                     " to: " + entryInfo[4] + "," + entryInfo[1] +
-                    "," + entryInfo[5] + "," + entryInfo[2];
+                    "," + entryInfo[5] + "," + entryInfo[2]+"\n";
             outputStream.write(info.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
